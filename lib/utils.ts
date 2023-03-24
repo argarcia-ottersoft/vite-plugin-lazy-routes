@@ -23,6 +23,10 @@ function routeToString(route: Route, prefix: string): string {
     props.set("index", "true");
   }
 
+  if (route.id != null) {
+    props.set("id", `'${route.id}'`);
+  }
+
   if (fs.existsSync(loaderPath)) {
     props.set(
       "loader",
