@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-lazy-routes",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "description": "Use Remix lazy flat-route routing in your Vite project",
   "license": "MIT",
@@ -72,9 +72,9 @@
     "lazy"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=16"
   },
   "volta": {
-    "node": "18.15.0"
+    "node": "16.18.0"
   }
 }
