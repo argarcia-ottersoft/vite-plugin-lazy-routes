@@ -18,6 +18,8 @@ export interface LazyOptions {
    * routes.
    */
   ignoredRouteFiles?: string[];
+
+  transformRoute?: (route: Route) => Route;
 }
 
 type GetRouteOptions = RequireOnly<LazyOptions, "appDirectory">;

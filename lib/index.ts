@@ -35,11 +35,15 @@ function plugin(options: LazyOptions = {}): Plugin {
 
     async load(id) {
       if (id === virtualModuleId) {
-        const generatedRoutes = await getRoutes({
+        let generatedRoutes = await getRoutes({
           appDirectory: dir,
           ignoredRouteFiles,
         });
 
+        if (options.transformRoute != null) {
+          generatedRoutes = generatedRoutes.map(options.transformRoute);
+        }
+        
         const routesString = stringifyRoutes(generatedRoutes, prefix);
 
         return `export default ${routesString};\n`;
