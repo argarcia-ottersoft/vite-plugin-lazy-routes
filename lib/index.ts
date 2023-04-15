@@ -48,7 +48,7 @@ function plugin(options: LazyOptions = {}): Plugin {
         const routesString = stringifyRoutes(generatedRoutes, prefix, imports);
 
         return `
-          ${Array.from(imports).join(";\n")};\n
+          ${Array.from(imports).join(";\n")}\n
           export default ${routesString};\n
         `;
       }

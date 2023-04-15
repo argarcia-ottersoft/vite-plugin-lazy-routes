@@ -41,7 +41,7 @@ function routeToString(route: Route, prefix: string, imports: Set<string>): stri
     props.set("lazy", `() => import("${componentPath}")`);
   } else {
     const componentName = getRouteComponentName(route);
-    imports.add(`import * as ${componentName} from '${componentPath}';`);
+    imports.add(`import * as ${componentName} from '${componentPath}'`);
     props.set("Component", `${componentName}.Component ? ${componentName}.Component : () => null`);
     props.set("loader", `${componentName}.loader`);
     props.set("action", `${componentName}.action`);
