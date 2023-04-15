@@ -44,9 +44,13 @@ function plugin(options: LazyOptions = {}): Plugin {
           generatedRoutes = generatedRoutes.map(options.transformRoute);
         }
         
-        const routesString = stringifyRoutes(generatedRoutes, prefix);
+        const imports = new Set<string>();
+        const routesString = stringifyRoutes(generatedRoutes, prefix, imports);
 
-        return `export default ${routesString};\n`;
+        return `
+          ${Array.from(imports).join(";\n")};\n
+          export default ${routesString};\n
+        `;
       }
     },
   };

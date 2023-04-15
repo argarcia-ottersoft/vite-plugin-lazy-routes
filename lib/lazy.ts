@@ -76,6 +76,7 @@ export function createRoute(route: ConfigRoute): Route {
   return {
     id: route.id,
     file: route.file,
+    isLazy: true,
     path: route.path || "",
     index: !!route.index,
     children: [],
@@ -86,6 +87,7 @@ export interface Route {
   // custom properties
   id: string;
   file: string;
+  isLazy: boolean;
 
   // react-router route properties
   path: string;
