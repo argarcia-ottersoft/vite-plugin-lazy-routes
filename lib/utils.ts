@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import ts from 'typescript';
 
 import type { Route } from "./lazy";
 
@@ -42,12 +43,28 @@ function routeToString(route: Route, prefix: string, imports: Set<string>): stri
   } else {
     const componentName = getRouteComponentName(route);
     imports.add(`import * as ${componentName} from '${componentPath}'`);
-    props.set("Component", `${componentName}.Component ? ${componentName}.Component : () => null`);
-    props.set("loader", `${componentName}.loader`);
-    props.set("action", `${componentName}.action`);
-    props.set("ErrorBoundary", `${componentName}.ErrorBoundary`);
-    props.set("handle", `${componentName}.handle`);
-    props.set("shouldRevalidate", `${componentName}.shouldRevalidate`);
+
+    const foundExports = parseAndFindExports(componentPath);
+    if (foundExports.includes('shouldRevalidate')) {
+      props.set("shouldRevalidate", `${componentName}.shouldRevalidate`);
+    }
+    if (foundExports.includes('handle')) {
+      props.set("handle", `${componentName}.handle`);
+    }
+    if (foundExports.includes('ErrorBoundary')) {
+      props.set("ErrorBoundary", `${componentName}.ErrorBoundary`);
+    }
+    if (foundExports.includes('action')) {
+      props.set("action", `${componentName}.action`);
+    }
+    if (foundExports.includes('loader')) {
+      props.set("loader", `${componentName}.loader`);
+    }
+    if (foundExports.includes('Component')) {
+      props.set("Component", `${componentName}.Component`);
+    } else {
+      props.set("Component", `() => null`);
+    }
   }
 
   if (route.children.length) {
@@ -62,6 +79,44 @@ function routeToString(route: Route, prefix: string, imports: Set<string>): stri
       .join(",") +
     "}"
   );
+}
+
+function parseAndFindExports(file: string) {
+  try {
+    const sourceFile = ts.createSourceFile(
+      file,
+      fs.readFileSync(file, 'utf8'),
+      ts.ScriptTarget.Latest,
+      /*setParentNodes*/ true,
+      ts.ScriptKind.TSX
+    );
+
+    const exportNames = ['shouldRevalidate', 'handle', 'ErrorBoundary', 'action', 'loader', 'Component'];
+    const foundExports: string[] = [];
+
+    function visit(node: ts.Node) {
+      if (
+        ts.isVariableStatement(node) &&
+        node.modifiers &&
+        node.modifiers.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
+      ) {
+        node.declarationList.declarations.forEach(declaration => {
+          const name = declaration.name.getText();
+          if (exportNames.includes(name)) {
+            foundExports.push(name);
+          }
+        });
+      }
+
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+    return foundExports;
+  } catch (parseErr) {
+    console.error('Error parsing file:', parseErr);
+    throw parseErr;
+  }
 }
 
 function getLoaderPath(componentPath: string) {
