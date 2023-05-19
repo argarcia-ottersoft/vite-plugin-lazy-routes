@@ -108,6 +108,17 @@ function parseAndFindExports(file: string) {
         });
       }
 
+      if (
+        ts.isFunctionDeclaration(node) &&
+        node.modifiers &&
+        node.modifiers.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
+      ) {
+        const name = node.name?.getText();
+        if (name && exportNames.includes(name)) {
+          foundExports.push(name);
+        }
+      }
+
       ts.forEachChild(node, visit);
     }
 
